@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog)
 import numpy as np
 from ui import (main, errorDialog, successDialog)
