@@ -1,3 +1,7 @@
 .idea/
 .vscode/
 venv/
+
+scheme/
+*.docx
+Thumbs.db
