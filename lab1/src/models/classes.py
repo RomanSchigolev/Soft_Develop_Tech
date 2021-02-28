@@ -64,7 +64,7 @@ class Vector:
         elif len(data) == 0:
             self.__data = np.zeros(2)
         else:
-            raise Exception('Введенные данные не яляются числами')
+            raise TypeError('Введенные данные не яляются числами')
 
     @staticmethod
     def __entered_data_validator(entered_data):
@@ -149,15 +149,15 @@ class Vector:
                 len(second_vector[second_vector > 0]) == len(second_vector):
 
             for value_first_vector, value_second_vector in zip(first_vector, second_vector):
-                set_coordinate_relations.append(value_first_vector / value_second_vector)
+                set_coordinate_relations.append(
+                    value_first_vector / value_second_vector)
 
             return len(set(set_coordinate_relations)) == 1
 
-        elif len(second_vector[second_vector > 0]) != len(second_vector):
+        if len(second_vector[second_vector > 0]) != len(second_vector):
 
             index_nonzero_element = np.where(first_vector != 0)[0][0]
-            scalar = second_vector[index_nonzero_element] / \
-                first_vector[index_nonzero_element]
+            scalar = second_vector[index_nonzero_element] / first_vector[index_nonzero_element]
             intermediate_vector = first_vector * scalar
 
             return np.array_equal(intermediate_vector, second_vector)
@@ -165,13 +165,8 @@ class Vector:
     def checking_codirectionality_vectors(self, another_vector):
         if self.__checking_collinearity_vectors(another_vector):
             return self.scalar_mul_of_vectors(another_vector) > 0
+        return False
 
 
 class Matrix:
     pass
-
-
-vector1 = Vector('4, 16')
-vector2 = Vector('2, 8')
-# print(vector1.checking_codirectionality_vectors(vector2))
-scalar1 = Scalar('10')
