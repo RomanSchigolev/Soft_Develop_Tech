@@ -8,7 +8,7 @@ class Scalar:
         if Scalar.__entered_data_validator(value):
             self.__data = float(value)
         else:
-            raise Exception('Это не число')
+            raise TypeError('Это не число')
 
     @staticmethod
     def __entered_data_validator(value):
@@ -50,10 +50,10 @@ class Scalar:
         return self.get_cosine / self.get_sinus
 
     def get_exponentiation(self, number):
-        return pow(self.__data, number)
+        return pow(self.__data, float(number))
 
     def get_root_of_n_degree(self, number):
-        return pow(self.__data, 1 / number)
+        return pow(self.__data, 1 / float(number))
 
 
 class Vector:
@@ -102,12 +102,14 @@ class Vector:
         return len(self.__data)
 
     @property
-    def get_value_vector(self):
+    def get_module_vector(self):
         return np.linalg.norm(self.__data)
 
     def scalar_mul_of_vectors(self, another):
         if not isinstance(another, Vector):
             raise TypeError('Это не вектор')
+        if self.get_vector_len != another.get_vector_len:
+            raise ValueError('Разные длины векторов')
         return np.dot(self.__data, another.get_numpy_vector)
 
     def checking_for_orthogonality(self, second_vector):
@@ -155,7 +157,6 @@ class Vector:
             return len(set(set_coordinate_relations)) == 1
 
         if len(second_vector[second_vector > 0]) != len(second_vector):
-
             index_nonzero_element = np.where(first_vector != 0)[0][0]
             scalar = second_vector[index_nonzero_element] / first_vector[index_nonzero_element]
             intermediate_vector = first_vector * scalar
