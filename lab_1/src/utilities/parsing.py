@@ -2,7 +2,7 @@ def matrix_parsing(rows, cols):
     matrix = []
 
     if rows == 0 or cols == 0:
-        print('ошибка')
+        print('Ошибка')
         return
 
     try:

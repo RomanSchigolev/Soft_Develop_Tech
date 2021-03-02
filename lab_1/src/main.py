@@ -2,6 +2,7 @@
 
 from models.classes import Vector, Scalar, Matrix
 from utilities.parsing import matrix_parsing
+from numpy.linalg import LinAlgError
 import click
 
 
@@ -177,11 +178,22 @@ def el_by_el_mul(vector1, vector2):
 
 
 @vector.command()
-@click.option('--vector1', prompt='Введите первый вектор. Пример: 1, 2, 3')
-@click.option('--vector2', prompt='Введите второй вектор. Пример: 1, 2, 3')
-def vec_by_matrix():
+@click.option('--vec', prompt='Введите вектор. Пример: 1, 2, 3')
+@click.option('--rows', prompt='Введите количество строк для матрицы', type=int)
+@click.option('--cols', prompt='Введите количество столбцов для матрицы', type=int)
+def vec_by_matrix(vec, rows, cols):
     '''Умножение вектора на матрицу'''
-    pass
+    number_of_rows = rows
+    number_of_cols = cols
+    try:
+        vec = Vector(vec)
+        mtrx = Matrix(matrix_parsing(number_of_rows, number_of_cols))
+        result = vec.vector_by_matrix(mtrx)
+        click.echo(result)
+    except ValueError:
+        click.echo('Ошибка')
+    except TypeError:
+        click.echo('Возникла ошибка')
 
 
 @vector.command()
@@ -262,15 +274,171 @@ def matrix():
 
 
 @matrix.command()
-@click.option('--rows', prompt='Введите количество строк', type=int)
-@click.option('--cols', prompt='Введите количество столбцов', type=int)
-def test(rows, cols):
+@click.option('--scal', prompt='Введите скаляр')
+@click.option('--rows', prompt='Введите количество строк для матрицы', type=int)
+@click.option('--cols', prompt='Введите количество столбцов для матрицы', type=int)
+def matrix_by_scalar(scal, rows, cols):
+    '''Умножение матрицы на скаляр'''
     number_of_rows = rows
     number_of_cols = cols
     try:
-        first_matrix = Matrix(matrix_parsing(number_of_rows, number_of_cols))
+        scal = Scalar(scal)
+        mtrx = Matrix(matrix_parsing(number_of_rows, number_of_cols))
+        result = mtrx * scal
+        click.echo(result)
     except ValueError:
         click.echo('Ошибка')
+    except TypeError:
+        click.echo('Возникла ошибка. Скаляр - число')
+
+
+@matrix.command()
+@click.option('--rows1', prompt='Введите количество строк для первой матрицы', type=int)
+@click.option('--cols1', prompt='Введите количество столбцов для первой матрицы', type=int)
+@click.option('--rows2', prompt='Введите количество строк для второй матрицы', type=int)
+@click.option('--cols2', prompt='Введите количество столбцов для второй матрицы', type=int)
+def el_by_el_add(rows1, cols1, rows2, cols2):
+    '''Поэлементное сложение'''
+    number_of_rows_for_first_matrix, number_of_cols_for_first_matrix = rows1, cols1
+    number_of_rows_for_second_matrix, number_of_cols_for_second_matrix = rows2, cols2
+    try:
+        first_matrix = Matrix(matrix_parsing(number_of_rows_for_first_matrix, number_of_cols_for_first_matrix))
+        second_matrix = Matrix(matrix_parsing(number_of_rows_for_second_matrix, number_of_cols_for_second_matrix))
+        result = first_matrix + second_matrix
+        click.echo(result)
+    except ValueError:
+        click.echo('Размеры матриц должны совпадать')
+    except TypeError:
+        click.echo('Это не матрица')
+
+
+@matrix.command()
+@click.option('--rows1', prompt='Введите количество строк для первой матрицы', type=int)
+@click.option('--cols1', prompt='Введите количество столбцов для первой матрицы', type=int)
+@click.option('--rows2', prompt='Введите количество строк для второй матрицы', type=int)
+@click.option('--cols2', prompt='Введите количество столбцов для второй матрицы', type=int)
+def el_by_el_mul(rows1, cols1, rows2, cols2):
+    '''Поэлементное произведение'''
+    number_of_rows_for_first_matrix, number_of_cols_for_first_matrix = rows1, cols1
+    number_of_rows_for_second_matrix, number_of_cols_for_second_matrix = rows2, cols2
+    try:
+        first_matrix = Matrix(matrix_parsing(number_of_rows_for_first_matrix, number_of_cols_for_first_matrix))
+        second_matrix = Matrix(matrix_parsing(number_of_rows_for_second_matrix, number_of_cols_for_second_matrix))
+        result = first_matrix * second_matrix
+        click.echo(result)
+    except ValueError:
+        click.echo('Размеры матриц должны совпадать')
+    except TypeError:
+        click.echo('Это не матрица')
+
+
+@matrix.command()
+@click.option('--vec', prompt='Введите вектор. Пример: 1, 2, 3')
+@click.option('--rows', prompt='Введите количество строк для матрицы', type=int)
+@click.option('--cols', prompt='Введите количество столбцов для матрицы', type=int)
+def vec_by_matrix(vec, rows, cols):
+    '''Умножение вектора на матрицу'''
+    number_of_rows = rows
+    number_of_cols = cols
+    try:
+        vec = Vector(vec)
+        mtrx = Matrix(matrix_parsing(number_of_rows, number_of_cols))
+        result = vec.vector_by_matrix(mtrx)
+        click.echo(result)
+    except ValueError:
+        click.echo('Ошибка')
+    except TypeError:
+        click.echo('Возникла ошибка')
+
+
+@matrix.command()
+@click.option('--rows1', prompt='Введите количество строк для первой матрицы', type=int)
+@click.option('--cols1', prompt='Введите количество столбцов для первой матрицы', type=int)
+@click.option('--rows2', prompt='Введите количество строк для второй матрицы', type=int)
+@click.option('--cols2', prompt='Введите количество столбцов для второй матрицы', type=int)
+def matrix_product(rows1, cols1, rows2, cols2):
+    '''Матричное произведение'''
+    number_of_rows_for_first_matrix, number_of_cols_for_first_matrix = rows1, cols1
+    number_of_rows_for_second_matrix, number_of_cols_for_second_matrix = rows2, cols2
+    try:
+        first_matrix = Matrix(matrix_parsing(number_of_rows_for_first_matrix, number_of_cols_for_first_matrix))
+        second_matrix = Matrix(matrix_parsing(number_of_rows_for_second_matrix, number_of_cols_for_second_matrix))
+        result = first_matrix.matrix_product(second_matrix)
+        click.echo(result)
+    except ValueError:
+        click.echo('Количество столбцов первой матрицы не равно количеству строк второй матрицы')
+    except TypeError:
+        click.echo('Это не матрица')
+
+
+@matrix.command()
+@click.option('--rows', prompt='Введите количество строк для матрицы', type=int)
+@click.option('--cols', prompt='Введите количество столбцов для матрицы', type=int)
+def trace(rows, cols):
+    '''Вычисление следа'''
+    number_of_rows, number_of_cols = rows, cols
+    try:
+        mtrx = Matrix(matrix_parsing(number_of_rows, number_of_cols))
+        result = mtrx.get_trace
+        click.echo(result)
+    except ValueError:
+        click.echo('Количество столбцов первой матрицы не равно количеству строк второй матрицы')
+    except TypeError:
+        click.echo('Возникла ошибка')
+
+
+@matrix.command()
+@click.option('--rows', prompt='Введите количество строк для матрицы', type=int)
+@click.option('--cols', prompt='Введите количество столбцов для матрицы', type=int)
+def determinant(rows, cols):
+    '''Вычисление определителя'''
+    number_of_rows, number_of_cols = rows, cols
+    if number_of_rows != number_of_cols:
+        click.echo('Количество строк должно совпадать с количеством столбцов')
+        return
+    try:
+        mtrx = Matrix(matrix_parsing(number_of_rows, number_of_cols))
+        result = mtrx.get_determinant
+        click.echo(result)
+    except ValueError:
+        click.echo('Ошибка')
+    except TypeError:
+        click.echo('Возникла ошибка')
+
+
+@matrix.command()
+@click.option('--rows', prompt='Введите количество строк для матрицы', type=int)
+@click.option('--cols', prompt='Введите количество столбцов для матрицы', type=int)
+def inverse_matrix(rows, cols):
+    '''Вычисление обратной матрицы'''
+    number_of_rows, number_of_cols = rows, cols
+    if number_of_rows != number_of_cols:
+        click.echo('Количество строк должно совпадать с количеством столбцов')
+        return
+    try:
+        mtrx = Matrix(matrix_parsing(number_of_rows, number_of_cols))
+        result = mtrx.get_inverse_matrix
+        click.echo(result)
+    except ValueError:
+        click.echo('Ошибка')
+    except TypeError:
+        click.echo('Возникла ошибка')
+
+
+@matrix.command()
+@click.option('--rows', prompt='Введите количество строк для матрицы', type=int)
+@click.option('--cols', prompt='Введите количество столбцов для матрицы', type=int)
+def transpose_matrix(rows, cols):
+    '''Транспонирование'''
+    number_of_rows, number_of_cols = rows, cols
+    try:
+        mtrx = Matrix(matrix_parsing(number_of_rows, number_of_cols))
+        result = mtrx.get_transpose_matrix
+        click.echo(result)
+    except ValueError:
+        click.echo('Ошибка')
+    except TypeError:
+        click.echo('Возникла ошибка')
 
 
 if __name__ == '__main__':

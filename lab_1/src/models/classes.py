@@ -117,13 +117,13 @@ class Vector:
             raise TypeError('Это не вектор')
         return self.scalar_mul_of_vectors(second_vector) == 0
 
-    def mul_by_matrix(self, matrix):
+    def vector_by_matrix(self, matrix):
         if not isinstance(matrix, Matrix):
             raise TypeError('Это не матрица')
-        if self.get_vector_len != matrix.get_cols:
+        if self.get_vector_len != matrix.get_rows:
             raise ValueError(
                 'Число столбцов в матрице должно совпадать с числом строк в векторе-столбце')
-        return Vector(matrix.dot(self.__data))
+        return np.dot(self.get_numpy_vector, matrix.get_numpy_matrix)
 
     def vector_product(self, another):
         if not isinstance(another, Vector):
@@ -222,19 +222,19 @@ class Matrix:
 
     def __mul__(self, another):
         if isinstance(another, Scalar):
-            return self.__data.dot(another.get_value)
+            return self.get_numpy_matrix.dot(another.get_value)
         if isinstance(another, Matrix):
             if self.get_dimension_of_matrix != another.get_dimension_of_matrix:
-                raise ValueError('Разная размерность')
+                raise ValueError('Размеры матриц должны совпадать')
             return np.multiply(self.get_numpy_matrix, another.get_numpy_matrix)
         else:
-            return self.__data * another
+            return self.get_numpy_matrix * another
 
     def __add__(self, another):
         if not isinstance(another, Matrix):
             raise TypeError('Это не матрица')
         if self.get_dimension_of_matrix != another.get_dimension_of_matrix:
-            raise ValueError('Разная размерность')
+            raise ValueError('Размеры матриц должны совпадать')
         return self.get_numpy_matrix + another.get_numpy_matrix
 
     def matrix_product(self, another):
@@ -250,55 +250,3 @@ class Matrix:
         if another.get_vector_len != self.get_rows:
             raise ValueError('Разная длина')
         return np.dot(another.get_numpy_vector, self.get_numpy_matrix)
-
-
-matrix1 = Matrix([[8, 1, 6], [3, 5, 7], [4, 9, 2]])
-matrix2 = Matrix([[1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3]])
-
-vector1 = Vector('2, 0, -1')
-print(matrix1.vector_by_matrix(vector1))
-m_test = np.array([[8, 1, 6], [3, 5, 7], [4, 9, 2]])
-v_test = np.array([2, 0, -1])
-print(np.dot(v_test, m_test))
-
-m1 = np.array([[1, 1, 1], [1, 2, 3], [1, 3, 6]])
-v1 = np.array([[3], [1], [4]])
-m2 = np.matrix([[1], [2], [3]])
-
-print(np.dot(m1, v1))
-
-# m1 = np.matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 2, 3]])
-# print(len(m1.A[0]))
-# m2 = np.array([[1, 2, 3], [4, 5, 6], [1, 1, 1]])
-#
-# v1 = Vector('1, 2, 3')
-# print(m2.dot(v1.get_numpy_vector))
-
-
-# matrix1 = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
-# print(matrix1.print_matrix())
-
-# matrix = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
-# rows = matrix.shape[0]
-# cols = matrix.shape[1]
-
-# matrix = Matrix('1, 2, 3 | 4, 5, 6')
-# print(matrix.print_matrix())
-
-
-# matrix = '1, 2, 3 | 4, 5, 6 | 7, 8, 9'
-# res = []
-# for rows in matrix.split(' | '):
-#     temp = []
-#     for elements in rows.split(', '):
-#         temp.append(elements)
-#     res.append(temp)
-
-
-# print(np.matrix(res, dtype=np.float64))
-#
-# entries = list(map(float, '1 2 3 4 5 6 7 8 9'.split()))
-# print(entries)
-# test = np.array(entries).reshape(3, 3)
-#
-# print(np.linalg.det(test))
