@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from models.classes import Vector, Scalar
+from models.classes import Vector, Scalar, Matrix
+from utilities.parsing import matrix_parsing
 import click
 
 
@@ -258,6 +259,18 @@ def orthog_vectors(vector1, vector2):
 @cli.group()
 def matrix():
     '''Операции по отношению к матрицам'''
+
+
+@matrix.command()
+@click.option('--rows', prompt='Введите количество строк', type=int)
+@click.option('--cols', prompt='Введите количество столбцов', type=int)
+def test(rows, cols):
+    number_of_rows = rows
+    number_of_cols = cols
+    try:
+        first_matrix = Matrix(matrix_parsing(number_of_rows, number_of_cols))
+    except ValueError:
+        click.echo('Ошибка')
 
 
 if __name__ == '__main__':

@@ -15,16 +15,6 @@ class Scalar:
         regexp_query = re.compile(r'[+-]?(([1-9][0-9]*)|(0))([.,][0-9]+)?')
         return regexp_query.fullmatch(value)
 
-    def __add__(self, another):
-        if isinstance(another, Scalar):
-            return self.__data + another.get_value
-        return self.__data + another
-
-    def __mul__(self, another):
-        if isinstance(another, Scalar):
-            return self.__data * another.get_value
-        return self.__data * another
-
     @property
     def get_value(self):
         return self.__data
@@ -49,11 +39,21 @@ class Scalar:
     def get_cotangent(self):
         return self.get_cosine / self.get_sinus
 
+    def __add__(self, another):
+        if isinstance(another, Scalar):
+            return self.__data + another.get_value
+        return self.__data + another
+
+    def __mul__(self, another):
+        if isinstance(another, Scalar):
+            return self.__data * another.get_value
+        return self.__data * another
+
     def get_exponentiation(self, number):
-        return pow(self.__data, float(number))
+        return pow(self.get_value, float(number))
 
     def get_root_of_n_degree(self, number):
-        return pow(self.__data, 1 / float(number))
+        return pow(self.get_value, 1 / float(number))
 
 
 class Vector:
@@ -76,6 +76,18 @@ class Vector:
                 counter_correct_items += 1
         return len(modified_data) == counter_correct_items
 
+    @property
+    def get_numpy_vector(self):
+        return self.__data
+
+    @property
+    def get_vector_len(self):
+        return len(self.__data)
+
+    @property
+    def get_module_vector(self):
+        return np.linalg.norm(self.__data)
+
     def __add__(self, another):
         if not isinstance(another, Vector):
             raise TypeError('Это не вектор')
@@ -92,18 +104,6 @@ class Vector:
             if self.get_vector_len != another.get_vector_len:
                 raise ValueError('Разные длины векторов')
             return self.__data * another.get_numpy_vector
-
-    @property
-    def get_numpy_vector(self):
-        return self.__data
-
-    @property
-    def get_vector_len(self):
-        return len(self.__data)
-
-    @property
-    def get_module_vector(self):
-        return np.linalg.norm(self.__data)
 
     def scalar_mul_of_vectors(self, another):
         if not isinstance(another, Vector):
@@ -170,4 +170,135 @@ class Vector:
 
 
 class Matrix:
-    pass
+    def __init__(self, data):
+        if Matrix.__entered_data_validator(data):
+            self.__data = np.matrix(data)
+        else:
+            raise TypeError('Неправильная матрица')
+
+    @staticmethod
+    def __entered_data_validator(matrix):
+        if len(matrix) != 0 and len(matrix[0]) != 0:
+            for row in matrix:
+                if len(row) != len(matrix[0]):
+                    return False
+                for element in row:
+                    if not isinstance(element, (int, float)):
+                        return False
+            return True
+        return False
+
+    @property
+    def get_rows(self):
+        return self.__data.shape[0]
+
+    @property
+    def get_cols(self):
+        return self.__data.shape[1]
+
+    @property
+    def get_numpy_matrix(self):
+        return self.__data.A
+
+    @property
+    def get_dimension_of_matrix(self):
+        return self.get_numpy_matrix.shape
+
+    @property
+    def get_trace(self):
+        return np.trace(self.get_numpy_matrix)
+
+    @property
+    def get_determinant(self):
+        return np.linalg.det(self.get_numpy_matrix)
+
+    @property
+    def get_inverse_matrix(self):
+        return np.linalg.inv(self.get_numpy_matrix)
+
+    @property
+    def get_transpose_matrix(self):
+        return self.get_numpy_matrix.T
+
+    def __mul__(self, another):
+        if isinstance(another, Scalar):
+            return self.__data.dot(another.get_value)
+        if isinstance(another, Matrix):
+            if self.get_dimension_of_matrix != another.get_dimension_of_matrix:
+                raise ValueError('Разная размерность')
+            return np.multiply(self.get_numpy_matrix, another.get_numpy_matrix)
+        else:
+            return self.__data * another
+
+    def __add__(self, another):
+        if not isinstance(another, Matrix):
+            raise TypeError('Это не матрица')
+        if self.get_dimension_of_matrix != another.get_dimension_of_matrix:
+            raise ValueError('Разная размерность')
+        return self.get_numpy_matrix + another.get_numpy_matrix
+
+    def matrix_product(self, another):
+        if not isinstance(another, Matrix):
+            raise TypeError('Это не матрица')
+        if self.get_cols != another.get_rows:
+            raise ValueError('Количество столбцов первой матрицы не равно количеству строк второй матрицы')
+        return np.dot(self.get_numpy_matrix, another.get_numpy_matrix)
+
+    def vector_by_matrix(self, another):
+        if not isinstance(another, Vector):
+            raise TypeError('Это не вектор')
+        if another.get_vector_len != self.get_rows:
+            raise ValueError('Разная длина')
+        return np.dot(another.get_numpy_vector, self.get_numpy_matrix)
+
+
+matrix1 = Matrix([[8, 1, 6], [3, 5, 7], [4, 9, 2]])
+matrix2 = Matrix([[1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3]])
+
+vector1 = Vector('2, 0, -1')
+print(matrix1.vector_by_matrix(vector1))
+m_test = np.array([[8, 1, 6], [3, 5, 7], [4, 9, 2]])
+v_test = np.array([2, 0, -1])
+print(np.dot(v_test, m_test))
+
+m1 = np.array([[1, 1, 1], [1, 2, 3], [1, 3, 6]])
+v1 = np.array([[3], [1], [4]])
+m2 = np.matrix([[1], [2], [3]])
+
+print(np.dot(m1, v1))
+
+# m1 = np.matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 2, 3]])
+# print(len(m1.A[0]))
+# m2 = np.array([[1, 2, 3], [4, 5, 6], [1, 1, 1]])
+#
+# v1 = Vector('1, 2, 3')
+# print(m2.dot(v1.get_numpy_vector))
+
+
+# matrix1 = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
+# print(matrix1.print_matrix())
+
+# matrix = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
+# rows = matrix.shape[0]
+# cols = matrix.shape[1]
+
+# matrix = Matrix('1, 2, 3 | 4, 5, 6')
+# print(matrix.print_matrix())
+
+
+# matrix = '1, 2, 3 | 4, 5, 6 | 7, 8, 9'
+# res = []
+# for rows in matrix.split(' | '):
+#     temp = []
+#     for elements in rows.split(', '):
+#         temp.append(elements)
+#     res.append(temp)
+
+
+# print(np.matrix(res, dtype=np.float64))
+#
+# entries = list(map(float, '1 2 3 4 5 6 7 8 9'.split()))
+# print(entries)
+# test = np.array(entries).reshape(3, 3)
+#
+# print(np.linalg.det(test))
