@@ -2,7 +2,7 @@
 
 from models.classes import Vector, Scalar, Matrix
 from utilities.parsing import matrix_parsing
-from numpy.linalg import LinAlgError
+
 import click
 
 
